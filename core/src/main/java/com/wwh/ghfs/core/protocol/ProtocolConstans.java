@@ -62,6 +62,10 @@ public class ProtocolConstans {
      * Message type: Heartbeat Response
      */
     public static final byte MSGTYPE_HEARTBEAT_RESPONSE = 4;
+    /**
+     * 文件数据类型
+     */
+    public static final int DATA_PACKAGE_FILEDATA=1;
 
 
 

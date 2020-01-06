@@ -5,13 +5,10 @@ import com.wwh.ghfs.core.util.NameThreadFactory;
 import com.wwh.ghfs.exception.GhfsRunExcepion;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
