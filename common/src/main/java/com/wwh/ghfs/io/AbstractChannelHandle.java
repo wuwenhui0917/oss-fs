@@ -40,12 +40,13 @@ public abstract  class AbstractChannelHandle  extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg==null) return;
+        //请求的报文
         if(msg instanceof RequestPackage){
             RequestPackage reqmsg =(RequestPackage) msg;
-            if(reqmsg.getMessageType()==ProtocolConstans.MSGTYPE_RESQUEST){
+            //请求报文需要返回和不返回的
+            if(reqmsg.getMessageType()==ProtocolConstans.MSGTYPE_RESQUEST||
+                    reqmsg.getMessageType()==ProtocolConstans.MSGTYPE_RESQUEST_ONEWAY){
                 try{
-
-//                    dispatch(reqmsg,ctx);
                     messageExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -61,22 +62,30 @@ public abstract  class AbstractChannelHandle  extends ChannelDuplexHandler {
                 }
 
             }
-            //发送数据后返回的报文时
+            //发送返回数据（给客户端用，二次交互报文）
             else if(reqmsg.getMessageType()==ProtocolConstans.MSGTYPE_RESPONSE){
                 ResultFuture fultter = mq.remove(reqmsg.getId());
-                fultter.setResultMessage(reqmsg.getBody());
-                //后续处理
-                messageExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            dispatch(reqmsg,ctx);
-                        }catch (Throwable th){
-                            logger.error(th.getMessage());
+                //不需要同步返回
+                if(fultter==null){
+                    messageExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                dispatch(reqmsg,ctx);
+                            }catch (Throwable th){
+                                logger.error(th.getMessage());
+                            }
                         }
-                    }
-                });
+                    });
+
+                }
+                else {
+                    //消息返回
+                    fultter.setResultMessage(reqmsg.getBody());
+                }
+
             }
+
 
         }
     }
@@ -126,6 +135,24 @@ public abstract  class AbstractChannelHandle  extends ChannelDuplexHandler {
     }
 
     /**
+     * 返回码
+     * @param channel
+     * @param msg
+     * @param messageId
+     */
+    protected void sendResponse(Channel channel, Object msg,int messageId) {
+        RequestPackage rpcMessage = new RequestPackage();
+        rpcMessage.setMessageType(msg instanceof HeartbeatMessage ?
+                ProtocolConstans.MSGTYPE_HEARTBEAT_RESPONSE
+                : ProtocolConstans.MSGTYPE_RESPONSE);
+        rpcMessage.setCodec(ProtocolConstans.CODE_TYPE_HESSION);
+        rpcMessage.setCompressor(ProtocolConstans.COMPREE_TYPE_GZIP);
+        rpcMessage.setBody(msg);
+        rpcMessage.setId(messageId);
+        channel.writeAndFlush(rpcMessage);
+    }
+
+    /**
      * 同步发送返回值
      * @param channel
      * @param msg
@@ -150,29 +177,26 @@ public abstract  class AbstractChannelHandle  extends ChannelDuplexHandler {
         refuture.setTimeout(timeout);
         //放入队列中
         mq.put(rpcMessage.getId(),refuture);
-        CountDownLatch latch = new CountDownLatch(1);
+//        CountDownLatch latch = new CountDownLatch(1);
         if(channel.isWritable()){
             ChannelFuture future = channel.writeAndFlush(rpcMessage);
             future.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    try{
                         if (!future.isSuccess()) {
-                            logger.error(">>>>>>>>>>>>>>>>");
-                            refuture.setResultMessage(future.cause());
+                            ResultFuture messageFuture = mq.remove(rpcMessage.getId());
+                            if (messageFuture != null) {
+                                messageFuture.setResultMessage(future.cause());
+                            }
                             destroyChannel(future.channel());
                         }
 
-                    }finally {
-                        latch.countDown();
-                    }
                 }
             });
 
         }
         try {
-            latch.await(timeout,TimeUnit.SECONDS);
-            return refuture.get();
+            return refuture.get(timeout,TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

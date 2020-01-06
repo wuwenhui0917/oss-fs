@@ -31,4 +31,9 @@ public class GFileImp implements GFile {
     public BlockInfo[] getBlock() {
         return new BlockInfo[0];
     }
+
+    @Override
+    public boolean isWrite() {
+        return false;
+    }
 }

@@ -12,5 +12,15 @@ public class FileDataPackage implements DataPackage {
         return ProtocolConstans.DATA_PACKAGE_FILEDATA;
     }
 
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
+
+    @Override
+    public boolean check() {
+        return false;
+    }
+
 
 }

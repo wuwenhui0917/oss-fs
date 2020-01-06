@@ -2,7 +2,7 @@ package com.wwh.ghfs.core.protocol;
 
 import java.io.Serializable;
 
-public class HeartbeatMessage implements Serializable {
+public class HeartbeatMessage implements DataPackage {
     private static final long serialVersionUID = -985316399527884899L;
     private boolean ping = true;
     /**
@@ -29,5 +29,20 @@ public class HeartbeatMessage implements Serializable {
 
     public void setPing(boolean ping) {
         this.ping = ping;
+    }
+
+    @Override
+    public int getPackType() {
+        return 0;
+    }
+
+    @Override
+    public byte[] getData() {
+        return new byte[0];
+    }
+
+    @Override
+    public boolean check() {
+        return false;
     }
 }

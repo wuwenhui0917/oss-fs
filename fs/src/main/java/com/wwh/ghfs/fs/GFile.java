@@ -24,4 +24,11 @@ public interface GFile {
      * @return
      */
     public BlockInfo[] getBlock();
+
+    /**
+     * 是否可写
+     * @return
+     */
+    public boolean isWrite();
+
 }

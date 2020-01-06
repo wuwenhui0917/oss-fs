@@ -14,7 +14,9 @@ public class ResultFuture {
     private RequestPackage requestMessage;
     private long timeout;
     private long start = System.currentTimeMillis();
-    private Object resultMessage;
+//    private Object resultMessage;
+    private transient CompletableFuture<Object> origin = new CompletableFuture<>();
+
 
     /**
      * Is timeout boolean.
@@ -32,10 +34,25 @@ public class ResultFuture {
      * @throws TimeoutException the timeout exception
      * @throws InterruptedException the interrupted exception
      */
-    public Object get() throws TimeoutException,
+    public Object get(long timeout, TimeUnit unit) throws TimeoutException,
             InterruptedException {
 
-        return this.resultMessage;
+        Object result = null;
+        try {
+            result = origin.get(timeout, unit);
+        } catch (ExecutionException e) {
+            throw new RuntimeException ("Should not get results in a multi-threaded environment", e);
+        } catch (TimeoutException e) {
+            throw new TimeoutException("cost " + (System.currentTimeMillis() - start) + " ms");
+        }
+
+        if (result instanceof RuntimeException) {
+            throw (RuntimeException)result;
+        } else if (result instanceof Throwable) {
+            throw new RuntimeException((Throwable)result);
+        }
+
+        return result;
     }
 
     /**
@@ -44,7 +61,7 @@ public class ResultFuture {
      * @param obj the obj
      */
     public void setResultMessage(Object obj) {
-        this.resultMessage = obj;
+        origin.complete(obj);
     }
 
     /**
