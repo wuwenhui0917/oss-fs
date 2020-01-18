@@ -1,10 +1,11 @@
-package com.wwh.ghfs.fs;
+package com.wwh.ghfs.fs.index;
 
 /**
  * Copyright asiainfo.com
  *
  * @author wuwh6
  */
-public interface DataFile {
+public class IndexInfo {
+
 
 }

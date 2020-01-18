@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class NameThreadFactory implements ThreadFactory {
 
-
     private String name;
     private final static Map<String, AtomicInteger> PREFIX_COUNTER = new ConcurrentHashMap<>();
     public NameThreadFactory(String name){
@@ -26,8 +25,5 @@ public class NameThreadFactory implements ThreadFactory {
         Thread thread = new Thread(r,tname);
         return thread;
     }
-
-
-
 
 }

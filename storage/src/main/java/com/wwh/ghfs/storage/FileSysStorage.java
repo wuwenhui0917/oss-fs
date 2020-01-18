@@ -12,8 +12,15 @@ import java.nio.channels.FileChannel;
 public class FileSysStorage implements Storage {
 
     private String dir;
+    private File dataDir;
     public FileSysStorage(String dataDir){
         this.dir = dataDir;
+        if(this.dir!=null){
+            this.dataDir = new File(this.dir);
+            if(!this.dataDir.exists()){
+                this.dataDir.mkdirs();
+            }
+        }
     }
 
     @Override

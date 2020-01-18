@@ -12,7 +12,7 @@ import org.junit.Test;
 public class MasterServerBootstrapTest {
     @Test
     public void server() throws Exception {
-        MasterServerBootstrap str= new MasterServerBootstrap(new NettyBaseConfig(),null);
+        MasterServerBootstrap str= new MasterNodeServerBootStrap(new NettyBaseConfig(),null);
         str.start(9999);
     }
 
