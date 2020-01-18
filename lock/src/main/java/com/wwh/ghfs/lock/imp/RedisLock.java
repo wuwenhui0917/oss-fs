@@ -1,19 +1,12 @@
 package com.wwh.ghfs.lock.imp;
-
 import com.wwh.ghfs.lock.AbstractLock;
-import com.wwh.ghfs.lock.FairThreadManager;
-import com.wwh.ghfs.lock.ThreadContextManager;
 import redis.clients.jedis.JedisCluster;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * Copyright asiainfo.com
@@ -61,7 +54,7 @@ public class RedisLock extends AbstractLock {
     @Override
     public void lock() {
         try {
-            this.lock(-1L, (TimeUnit) null, false);
+            this.lock(10000,  TimeUnit.MILLISECONDS, false);
         } catch (InterruptedException e) {
             throw new RuntimeException("lock error");
         }
@@ -71,7 +64,7 @@ public class RedisLock extends AbstractLock {
 
     @Override
     public void lockInterruptibly() throws InterruptedException {
-        this.lock(-1L, (TimeUnit) null, true);
+        this.lock(-1L, TimeUnit.MILLISECONDS, true);
     }
 
     @Override
@@ -118,6 +111,7 @@ public class RedisLock extends AbstractLock {
             if(result==-1){
                 new RuntimeException("释放锁失败");
             }
+            super.unlock();
         }
         new RuntimeException("释放锁失败；[jedis connection is null]");
 

@@ -29,14 +29,20 @@ public abstract class AbstractLock implements DistributeLock {
             /**自旋中*/
             while (true) {
                 //获取锁 直接退出
-                if (result == 0) {
+                if (result == -1) {
                     return;
                 }
+
                 if(result>0){
                     LockSupport.parkNanos(result);
                 }
                 else if(interruptibly){
+
                     LockSupport.park();
+                }
+                else {
+
+                    LockSupport.parkNanos(leaseTime);
                 }
 
 //                //进行自旋等待
@@ -48,11 +54,11 @@ public abstract class AbstractLock implements DistributeLock {
 //                } else {
 //                ThreadContextManager.getLatch().acquireUninterruptibly();
 //                }
-//                result = tryAcquire(leaseTime, unit, threadId);
+                result = tryAcquire(leaseTime, unit, threadId);
             }
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             works.removeWork(work);
         }
