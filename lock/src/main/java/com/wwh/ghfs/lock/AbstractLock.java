@@ -6,7 +6,7 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * Copyright asiainfo.com
- *
+ * 基于AQS实现锁机制
  * @author wuwh6
  */
 public abstract class AbstractLock implements DistributeLock {
