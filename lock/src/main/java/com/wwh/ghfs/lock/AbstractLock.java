@@ -11,8 +11,8 @@ import java.util.concurrent.locks.LockSupport;
  */
 public abstract class AbstractLock implements DistributeLock {
 
+    /**当前锁上的线程队列*/
     protected FairThreadManager works = new FairThreadManager();
-
     /**
      * 加锁
      * @param leaseTime
@@ -46,9 +46,9 @@ public abstract class AbstractLock implements DistributeLock {
 //                    ThreadContextManager.getLatch().acquire();
 //
 //                } else {
-                ThreadContextManager.getLatch().acquireUninterruptibly();
+//                ThreadContextManager.getLatch().acquireUninterruptibly();
 //                }
-                result = tryAcquire(leaseTime, unit, threadId);
+//                result = tryAcquire(leaseTime, unit, threadId);
             }
 
         } catch (Exception e) {
@@ -72,4 +72,20 @@ public abstract class AbstractLock implements DistributeLock {
 
         }
     }
+
+    public Thread getActiveThread(){
+       return  Thread.currentThread();
+    }
+
+
+
+    @Override
+    public void unlock() {
+
+        this.works.removeWork(getActiveThread());
+        Thread nextThread = this.works.poll();
+        LockSupport.unpark(nextThread);
+    }
+
+
 }
