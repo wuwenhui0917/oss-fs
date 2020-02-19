@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
  *
  * @author wuwh6
  */
-public class FileSysStorage implements Storage {
+public  abstract  class FileSysStorage implements Storage {
 
     private String dir;
     private File dataDir;

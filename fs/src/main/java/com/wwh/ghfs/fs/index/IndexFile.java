@@ -8,7 +8,7 @@ package com.wwh.ghfs.fs.index;
 public interface IndexFile {
 
     /**
-     * 加载索引文件
+     * 加载索引文件[
      * @param fileName
      */
     public void loadIndex(String fileName);
