@@ -64,6 +64,10 @@ public class RedisLock extends AbstractLock {
 
     @Override
     public void lockInterruptibly() throws InterruptedException {
+        if(Thread.interrupted()){
+            Thread.interrupted();
+            throw new InterruptedException();
+        }
         this.lock(-1L, TimeUnit.MILLISECONDS, true);
     }
 

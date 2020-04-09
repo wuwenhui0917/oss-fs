@@ -36,13 +36,16 @@ public abstract class AbstractLock implements DistributeLock {
                 if(result>0){
                     LockSupport.parkNanos(result);
                 }
-                else if(interruptibly){
+//                else if(interruptibly){
+//                    LockSupport.park();
+//                }
+                else {
 
                     LockSupport.park();
                 }
-                else {
-
-                    LockSupport.parkNanos(leaseTime);
+                if(Thread.interrupted()){
+                    Thread.interrupted();
+                    throw new InterruptedException();
                 }
 
 //                //进行自旋等待
